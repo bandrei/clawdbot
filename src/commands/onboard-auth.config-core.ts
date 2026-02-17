@@ -57,8 +57,12 @@ import {
 } from "./onboard-auth.config-shared.js";
 import {
   buildZaiModelDefinition,
+  buildCerebrasModelDefinition,
   buildMoonshotModelDefinition,
   buildXaiModelDefinition,
+  CEREBRAS_BASE_URL,
+  CEREBRAS_DEFAULT_MODEL_ID,
+  CEREBRAS_DEFAULT_MODEL_REF,
   QIANFAN_BASE_URL,
   QIANFAN_DEFAULT_MODEL_REF,
   KIMI_CODING_MODEL_REF,
@@ -398,6 +402,30 @@ export function applyXaiProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
 export function applyXaiConfig(cfg: OpenClawConfig): OpenClawConfig {
   const next = applyXaiProviderConfig(cfg);
   return applyAgentDefaultModelPrimary(next, XAI_DEFAULT_MODEL_REF);
+}
+
+export function applyCerebrasProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+  const models = { ...cfg.agents?.defaults?.models };
+  models[CEREBRAS_DEFAULT_MODEL_REF] = {
+    ...models[CEREBRAS_DEFAULT_MODEL_REF],
+    alias: models[CEREBRAS_DEFAULT_MODEL_REF]?.alias ?? "Cerebras",
+  };
+
+  const defaultModel = buildCerebrasModelDefinition();
+
+  return applyProviderConfigWithDefaultModel(cfg, {
+    agentModels: models,
+    providerId: "cerebras",
+    api: "openai-completions",
+    baseUrl: CEREBRAS_BASE_URL,
+    defaultModel,
+    defaultModelId: CEREBRAS_DEFAULT_MODEL_ID,
+  });
+}
+
+export function applyCerebrasConfig(cfg: OpenClawConfig): OpenClawConfig {
+  const next = applyCerebrasProviderConfig(cfg);
+  return applyAgentDefaultModelPrimary(next, CEREBRAS_DEFAULT_MODEL_REF);
 }
 
 export function applyAuthProfileConfig(

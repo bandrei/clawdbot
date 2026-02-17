@@ -11,6 +11,12 @@ import {
   resolveCloudflareAiGatewayBaseUrl,
 } from "./cloudflare-ai-gateway.js";
 import {
+  CEREBRAS_BASE_URL,
+  CEREBRAS_DEFAULT_MODEL_ID,
+  CEREBRAS_DEFAULT_MODEL_REF,
+  buildCerebrasModelDefinition,
+} from "../commands/onboard-auth.models.js";
+import {
   discoverHuggingfaceModels,
   HUGGINGFACE_BASE_URL,
   HUGGINGFACE_MODEL_CATALOG,
@@ -620,6 +626,14 @@ export function buildQianfanProvider(): ProviderConfig {
   };
 }
 
+export function buildCerebrasProvider(): ProviderConfig {
+  return {
+    baseUrl: CEREBRAS_BASE_URL,
+    api: "openai-completions",
+    models: [buildCerebrasModelDefinition()],
+  };
+}
+
 export function buildNvidiaProvider(): ProviderConfig {
   return {
     baseUrl: NVIDIA_BASE_URL,
@@ -670,6 +684,13 @@ export async function resolveImplicitProviders(params: {
     resolveApiKeyFromProfiles({ provider: "minimax", store: authStore });
   if (minimaxKey) {
     providers.minimax = { ...buildMinimaxProvider(), apiKey: minimaxKey };
+  }
+
+  const cerebrasKey =
+    resolveEnvApiKeyVarName("cerebras") ??
+    resolveApiKeyFromProfiles({ provider: "cerebras", store: authStore });
+  if (cerebrasKey) {
+    providers.cerebras = { ...buildCerebrasProvider(), apiKey: cerebrasKey };
   }
 
   const minimaxOauthProfile = listProfilesForProvider(authStore, "minimax-portal");

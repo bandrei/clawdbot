@@ -64,6 +64,10 @@ import {
   setVercelAiGatewayApiKey,
   setXiaomiApiKey,
   setZaiApiKey,
+  setCerebrasApiKey,
+  applyCerebrasConfig,
+  applyCerebrasProviderConfig,
+  CEREBRAS_DEFAULT_MODEL_REF,
   ZAI_DEFAULT_MODEL_REF,
 } from "./onboard-auth.js";
 import { OPENCODE_ZEN_DEFAULT_MODEL } from "./opencode-zen-model-default.js";
@@ -124,6 +128,8 @@ export async function applyAuthChoiceApiProviders(
       authChoice = "opencode-zen";
     } else if (params.opts.tokenProvider === "qianfan") {
       authChoice = "qianfan-api-key";
+    } else if (params.opts.tokenProvider === "cerebras") {
+      authChoice = "cerebras-api-key";
     }
   }
 
@@ -365,6 +371,54 @@ export async function applyAuthChoiceApiProviders(
             gatewayId: gatewayId || params.opts?.cloudflareAiGatewayGatewayId,
           }),
         noteDefault: CLOUDFLARE_AI_GATEWAY_DEFAULT_MODEL_REF,
+        noteAgentModel,
+        prompter: params.prompter,
+      });
+      nextConfig = applied.config;
+      agentModelOverride = applied.agentModelOverride ?? agentModelOverride;
+    }
+    return { config: nextConfig, agentModelOverride };
+  }
+
+  if (authChoice === "cerebras-api-key") {
+    let hasCredential = false;
+
+    if (!hasCredential && params.opts?.token && params.opts?.tokenProvider === "cerebras") {
+      await setCerebrasApiKey(normalizeApiKeyInput(params.opts.token), params.agentDir);
+      hasCredential = true;
+    }
+
+    const envKey = resolveEnvApiKey("cerebras");
+    if (envKey) {
+      const useExisting = await params.prompter.confirm({
+        message: `Use existing CEREBRAS_API_KEY (${envKey.source}, ${formatApiKeyPreview(envKey.apiKey)})?`,
+        initialValue: true,
+      });
+      if (useExisting) {
+        await setCerebrasApiKey(envKey.apiKey, params.agentDir);
+        hasCredential = true;
+      }
+    }
+    if (!hasCredential) {
+      const key = await params.prompter.text({
+        message: "Enter Cerebras API key",
+        validate: validateApiKeyInput,
+      });
+      await setCerebrasApiKey(normalizeApiKeyInput(String(key ?? "")), params.agentDir);
+    }
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "cerebras:default",
+      provider: "cerebras",
+      mode: "api_key",
+    });
+    {
+      const applied = await applyDefaultModelChoice({
+        config: nextConfig,
+        setDefaultModel: params.setDefaultModel,
+        defaultModel: CEREBRAS_DEFAULT_MODEL_REF,
+        applyDefaultConfig: applyCerebrasConfig,
+        applyProviderConfig: applyCerebrasProviderConfig,
+        noteDefault: CEREBRAS_DEFAULT_MODEL_REF,
         noteAgentModel,
         prompter: params.prompter,
       });

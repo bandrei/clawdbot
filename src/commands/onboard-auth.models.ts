@@ -180,3 +180,27 @@ export function buildXaiModelDefinition(): ModelDefinitionConfig {
     maxTokens: XAI_DEFAULT_MAX_TOKENS,
   };
 }
+
+export const CEREBRAS_BASE_URL = "https://api.cerebras.ai/v1";
+export const CEREBRAS_DEFAULT_MODEL_ID = "llama3.1-70b";
+export const CEREBRAS_DEFAULT_MODEL_REF = `cerebras/${CEREBRAS_DEFAULT_MODEL_ID}`;
+export const CEREBRAS_DEFAULT_CONTEXT_WINDOW = 8192;
+export const CEREBRAS_DEFAULT_MAX_TOKENS = 8192;
+export const CEREBRAS_DEFAULT_COST = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+
+export function buildCerebrasModelDefinition(): ModelDefinitionConfig {
+  return {
+    id: CEREBRAS_DEFAULT_MODEL_ID,
+    name: "Llama 3.1 70B (Cerebras)",
+    reasoning: false,
+    input: ["text"],
+    cost: CEREBRAS_DEFAULT_COST,
+    contextWindow: CEREBRAS_DEFAULT_CONTEXT_WINDOW,
+    maxTokens: CEREBRAS_DEFAULT_MAX_TOKENS,
+  };
+}

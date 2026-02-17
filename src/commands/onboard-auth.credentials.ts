@@ -274,3 +274,15 @@ export function setXaiApiKey(key: string, agentDir?: string) {
     agentDir: resolveAuthAgentDir(agentDir),
   });
 }
+
+export async function setCerebrasApiKey(key: string, agentDir?: string) {
+  upsertAuthProfile({
+    profileId: "cerebras:default",
+    credential: {
+      type: "api_key",
+      provider: "cerebras",
+      key,
+    },
+    agentDir: resolveAuthAgentDir(agentDir),
+  });
+}

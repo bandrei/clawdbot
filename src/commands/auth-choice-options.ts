@@ -155,6 +155,12 @@ const AUTH_CHOICE_GROUP_DEFS: {
     choices: ["cloudflare-ai-gateway-api-key"],
   },
   {
+    value: "cerebras",
+    label: "Cerebras",
+    hint: "API key",
+    choices: ["cerebras-api-key"],
+  },
+  {
     value: "custom",
     label: "Custom Provider",
     hint: "Any OpenAI or Anthropic compatible endpoint",
@@ -297,6 +303,11 @@ const BASE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
     hint: "Faster, higher output cost",
   },
   { value: "custom-api-key", label: "Custom Provider" },
+  {
+    value: "cerebras-api-key",
+    label: "Cerebras API key",
+    hint: "Fastest inference with Llama models",
+  },
 ];
 
 export function formatAuthChoiceChoicesForCli(params?: {
